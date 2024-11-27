@@ -28,6 +28,6 @@ jobs:
         source /home/ubuntu/streamlit_app/env/bin/activate
         cd /home/ubuntu/streamlit_app
         pkill -f streamlit || true  # Detener cualquier instancia previa de Streamlit
-        nohup streamlit run Dashboard.py --server.port 8501 --server.headless true &
+        nohup streamlit run Dashboard.py --server.port 8501 --server.headless true > streamlit.log 2>&1 &
         exit
         EOF
