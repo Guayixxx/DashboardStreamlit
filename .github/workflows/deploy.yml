@@ -22,20 +22,17 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << EOF
         sudo apt update
-        sudo apt install python3-pip -y
+        sudo apt install python3-pip python3-venv -y
         mkdir -p /home/ubuntu/streamlit_app
+        cd /home/ubuntu/streamlit_app
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        nohup venv/bin/streamlit run Dashboard.py --server.port 8501 --server.headless true &
         exit
         EOF
 
     - name: Copy Files to EC2
       run: |
         scp -o StrictHostKeyChecking=no Dashboard.py requirements.txt ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/streamlit_app/
-
-    - name: Install Dependencies and Run Streamlit
-      run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << EOF
-        cd /home/ubuntu/streamlit_app
-        pip install -r requirements.txt
-        nohup streamlit run Dashboard.py --server.port 8501 --server.headless true &
-        exit
-        EOF
