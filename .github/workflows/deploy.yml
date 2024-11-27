@@ -3,7 +3,7 @@ name: Deploy Streamlit App to EC2
 on:
   push:
     branches:
-      - main  # Cambia a la rama principal de tu repositorio si no es "main"
+      - main
 
 jobs:
   deploy:
@@ -21,8 +21,21 @@ jobs:
     - name: Deploy Streamlit App to EC2
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << EOF
-        cd /home/ubuntu/streamlit_app || git clone https://github.com/Guayixxx/DashboardStreamlit.git streamlit_app && cd streamlit_app
-        git pull
+        sudo apt update
+        sudo apt install python3-pip -y
+        mkdir -p /home/ubuntu/streamlit_app
+        exit
+        EOF
+
+    - name: Copy Files to EC2
+      run: |
+        scp -o StrictHostKeyChecking=no Dashboard.py requirements.txt ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/streamlit_app/
+
+    - name: Install Dependencies and Run Streamlit
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << EOF
+        cd /home/ubuntu/streamlit_app
         pip install -r requirements.txt
         nohup streamlit run Dashboard.py --server.port 8501 --server.headless true &
+        exit
         EOF
