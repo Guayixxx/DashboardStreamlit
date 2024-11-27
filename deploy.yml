@@ -1,0 +1,28 @@
+name: Deploy Streamlit App to EC2
+
+on:
+  push:
+    branches:
+      - main  # Cambia a la rama principal de tu repositorio si no es "main"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: Deploy Streamlit App to EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << EOF
+        cd /home/ubuntu/streamlit_app || git clone https://github.com/Guayixxx/DashboardStreamlit.git streamlit_app && cd streamlit_app
+        git pull
+        pip install -r requirements.txt
+        nohup streamlit run Dashboard.py --server.port 8501 --server.headless true &
+        EOF
