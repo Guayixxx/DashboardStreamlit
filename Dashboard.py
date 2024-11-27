@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Cargar datos
-df = pd.read_csv('/home/juan-pablo/Documentos/Toma de Decisiones 1/Parcial/GymCleanData.csv')
+df = pd.read_csv('GymCleanData.csv')
 
 # Sección 1: Resumen general
 st.title("Gym Member Analysis")
