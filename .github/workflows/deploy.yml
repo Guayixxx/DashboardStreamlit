@@ -18,21 +18,16 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    - name: Deploy Streamlit App to EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << EOF
-        sudo apt update
-        sudo apt install python3-pip python3-venv -y
-        mkdir -p /home/ubuntu/streamlit_app
-        cd /home/ubuntu/streamlit_app
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install -r requirements.txt
-        nohup venv/bin/streamlit run Dashboard.py --server.port 8501 --server.headless true &
-        exit
-        EOF
-
     - name: Copy Files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no Dashboard.py requirements.txt ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/streamlit_app/
+        scp -o StrictHostKeyChecking=no Dashboard.py GymCleanData.csv ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/streamlit_app/
+
+    - name: Restart Streamlit App
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << EOF
+        source /home/ubuntu/streamlit_app/env/bin/activate
+        cd /home/ubuntu/streamlit_app
+        pkill -f streamlit || true  # Detener cualquier instancia previa de Streamlit
+        nohup streamlit run Dashboard.py --server.port 8501 --server.headless true &
+        exit
+        EOF
