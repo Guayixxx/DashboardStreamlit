@@ -31,3 +31,6 @@ jobs:
         nohup streamlit run Dashboard.py --server.port 8501 --server.headless true > streamlit.log 2>&1 &
         exit
         EOF
+    
+    - name: Close Workflow
+      run: echo "El proceso ha terminado exitosamente."
